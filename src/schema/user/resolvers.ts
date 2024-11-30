@@ -1,39 +1,67 @@
 import { randomUUIDv7 } from "bun";
+import { db } from "../../sqlite/database";
 import type { Resolvers, User } from "../../types/generated";
-
-let users: User[] = [];
 
 export const resolvers: Resolvers = {
 	Query: {
-		users: () => users,
+		users: () => {
+			return db.query("SELECT * FROM users").all() as User[];
+		},
 		user: (_, { id }) => {
-			const user = users.find((user) => user.id === id);
-			if (!user) throw new Error(`User with id ${id} not found`);
-			return user;
+			return db
+				.query("SELECT * FROM users WHERE id = $id")
+				.get({ $id: id }) as User;
 		},
 	},
 	Mutation: {
 		createUser: (_, { name }) => {
-			const user = {
-				id: randomUUIDv7(),
-				name,
-				createdAt: new Date(),
-				updatedAt: new Date(),
-			};
-			users.push(user);
+			const id = randomUUIDv7();
+			const now = new Date().toISOString();
+
+			const user = db
+				.query(`
+					INSERT INTO users (id, name, created_at, updated_at) 
+                    VALUES ($id, $name, $createdAt, $updatedAt) 
+                    RETURNING id, name, created_at as createdAt, updated_at as updatedAt
+                `)
+				.get({
+					$id: id,
+					$name: name,
+					$createdAt: now,
+					$updatedAt: now,
+				}) as User;
+
 			return user;
 		},
 		updateUser: (_, { id, name }) => {
-			const user = users.find((user) => user.id === id);
+			const user = db
+				.query("SELECT * FROM users WHERE id = $id")
+				.get({ $id: id }) as User;
+
 			if (!user) throw new Error(`User with id ${id} not found`);
+
 			user.name = name;
-			user.updatedAt = new Date();
+			user.updatedAt = new Date().toISOString();
+
+			db.query(`
+				UPDATE users SET name = $name, updated_at = $updatedAt WHERE id = $id
+			`).run({
+				$name: name,
+				$updatedAt: user.updatedAt,
+				$id: id,
+			});
+
 			return user;
 		},
 		deleteUser: (_, { id }) => {
-			const user = users.find((user) => user.id === id);
+			const user = db
+				.query("SELECT * FROM users WHERE id = $id")
+				.get({ $id: id }) as User;
+
 			if (!user) throw new Error(`User with id ${id} not found`);
-			users = users.filter((user) => user.id !== id);
+
+			db.query("DELETE FROM users WHERE id = $id").run({ $id: id });
+
 			return user;
 		},
 	},
