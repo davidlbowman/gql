@@ -1,6 +1,6 @@
 import { Database } from "bun:sqlite";
 
-const db = new Database("users.sqlite", { create: true });
+const db = new Database("src/sqlite/users/users.sqlite", { create: true });
 
 db.exec("PRAGMA journal_mode = WAL;");
 

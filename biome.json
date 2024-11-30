@@ -7,7 +7,7 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": ["src/types/**/*.ts"]
+		"ignore": ["src/gql/types/**/*.ts"]
 	},
 	"formatter": {
 		"enabled": true,

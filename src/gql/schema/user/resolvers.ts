@@ -1,5 +1,5 @@
 import { randomUUIDv7 } from "bun";
-import { db } from "../../sqlite/database";
+import { db } from "../../../sqlite/database";
 import type { Resolvers, User } from "../../types/generated";
 
 export function getUsers(): User[] {
