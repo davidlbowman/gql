@@ -16,19 +16,16 @@ export const resolvers: Resolvers = {
 	Mutation: {
 		createUser: (_, { name }) => {
 			const id = randomUUIDv7();
-			const now = new Date().toISOString();
 
 			return db
 				.query(`
-					INSERT INTO users (id, name, created_at, updated_at) 
-					VALUES ($id, $name, $createdAt, $updatedAt) 
-					RETURNING id, name, created_at as createdAt, updated_at as updatedAt
+					INSERT INTO users (id, name) 
+					VALUES ($id, $name) 
+					RETURNING id, name
 				`)
 				.get({
 					$id: id,
 					$name: name,
-					$createdAt: now,
-					$updatedAt: now,
 				}) as User;
 		},
 		updateUser: (_, { id, name }) => {
@@ -39,13 +36,11 @@ export const resolvers: Resolvers = {
 			if (!user) throw new Error(`User with id ${id} not found`);
 
 			user.name = name;
-			user.updatedAt = new Date().toISOString();
 
 			db.query(`
-				UPDATE users SET name = $name, updated_at = $updatedAt WHERE id = $id
+				UPDATE users SET name = $name WHERE id = $id
 			`).run({
 				$name: name,
-				$updatedAt: user.updatedAt,
 				$id: id,
 			});
 
