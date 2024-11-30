@@ -7,7 +7,7 @@
 		"lint": "bunx biome check --write",
 		"check": "bunx biome check --write",
 		"codegen": "graphql-codegen",
-		"gql": "bun run src/server.ts"
+		"gql": "bun run src/gql/server.ts"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",

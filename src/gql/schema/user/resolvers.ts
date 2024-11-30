@@ -62,5 +62,9 @@ export const resolvers: Resolvers = {
 
 			return user;
 		},
+		deleteAllUsers: () => {
+			db.query("DELETE FROM users").run();
+			return true;
+		},
 	},
 };

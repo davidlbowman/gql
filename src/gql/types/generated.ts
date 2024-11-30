@@ -21,6 +21,7 @@ export type Scalars = {
 export type Mutation = {
   __typename?: 'Mutation';
   createUser: User;
+  deleteAllUsers: Scalars['Boolean']['output'];
   deleteUser: User;
   updateUser: User;
 };
@@ -157,6 +158,7 @@ export interface DateTimeScalarConfig extends GraphQLScalarTypeConfig<ResolversT
 
 export type MutationResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   createUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationCreateUserArgs, 'name'>>;
+  deleteAllUsers?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   deleteUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationDeleteUserArgs, 'id'>>;
   updateUser?: Resolver<ResolversTypes['User'], ParentType, ContextType, RequireFields<MutationUpdateUserArgs, 'id' | 'name'>>;
 };

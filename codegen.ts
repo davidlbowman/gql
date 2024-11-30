@@ -9,6 +9,7 @@ const config: CodegenConfig = {
 				contextType: "./context#Context",
 				scalars: {
 					ID: "string",
+					DateTime: "Date",
 				},
 			},
 		},

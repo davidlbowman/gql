@@ -2,12 +2,14 @@ import type { GraphQLClient } from "graphql-request";
 import type { User } from "../../types/generated";
 
 const GET_USERS = `
-query Users {
-    users {
-        id
-        name
+    query Users {
+        users {
+            id
+            name
+            # createdAt
+            # updatedAt
+        }
     }
-}
 `;
 
 interface GetUsersInterface {
