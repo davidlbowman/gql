@@ -12,7 +12,8 @@ db.exec(`
     CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
-    created_at DATETIME NOT NULL
+    created_at DATETIME NOT NULL,
+    updated_at DATETIME NOT NULL
   );
 `);
 

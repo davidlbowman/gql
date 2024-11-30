@@ -28,13 +28,15 @@ export const resolvers: Resolvers = {
 	Query: {
 		users: () => {
 			return db
-				.query("SELECT id, name, created_at as createdAt FROM users")
+				.query(
+					"SELECT id, name, created_at as createdAt, updated_at as updatedAt FROM users",
+				)
 				.all() as User[];
 		},
 		user: (_, { id }) => {
 			return db
 				.query(
-					"SELECT id, name, created_at as createdAt FROM users WHERE id = $id",
+					"SELECT id, name, created_at as createdAt, updated_at as updatedAt FROM users WHERE id = $id",
 				)
 				.get({ $id: id }) as User;
 		},
@@ -42,18 +44,19 @@ export const resolvers: Resolvers = {
 	Mutation: {
 		createUser: (_, { name }) => {
 			const id = randomUUIDv7();
-			const createdAt = new Date().toISOString();
+			const now = new Date().toISOString();
 
 			return db
 				.query(`
-					INSERT INTO users (id, name, created_at) 
-					VALUES ($id, $name, $createdAt) 
-					RETURNING id, name, created_at as createdAt
+					INSERT INTO users (id, name, created_at, updated_at) 
+					VALUES ($id, $name, $createdAt, $updatedAt) 
+					RETURNING id, name, created_at as createdAt, updated_at as updatedAt
 				`)
 				.get({
 					$id: id,
 					$name: name,
-					$createdAt: createdAt,
+					$createdAt: now,
+					$updatedAt: now,
 				}) as User;
 		},
 		updateUser: (_, { id, name }) => {
@@ -63,13 +66,17 @@ export const resolvers: Resolvers = {
 
 			if (!user) throw new Error(`User with id ${id} not found`);
 
+			const now = new Date().toISOString();
 			user.name = name;
 
 			db.query(`
-				UPDATE users SET name = $name WHERE id = $id
+				UPDATE users 
+				SET name = $name, updated_at = $updatedAt 
+				WHERE id = $id
 			`).run({
 				$name: name,
 				$id: id,
+				$updatedAt: now,
 			});
 
 			return user;

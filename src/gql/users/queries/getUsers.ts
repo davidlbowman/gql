@@ -6,9 +6,10 @@ const GET_USERS = `
         users {
             id
             name
-            createdAt
-        }
-    }
+			createdAt
+			updatedAt
+		}
+	}
 `;
 
 interface GetUsersInterface {

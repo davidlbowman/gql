@@ -7,6 +7,7 @@ mutation CreateUser($name: String!) {
         id
         name
         createdAt
+        updatedAt
     }
 }
 `;
