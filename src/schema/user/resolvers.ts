@@ -1,7 +1,8 @@
 import { randomUUIDv7 } from "bun";
 import type { Resolvers } from "../../types/generated";
 
-let users: { id: string; name: string }[] = [];
+let users: { id: string; name: string; createdAt: Date; updatedAt: Date }[] =
+	[];
 
 export const resolvers: Resolvers = {
 	Query: {
@@ -14,7 +15,12 @@ export const resolvers: Resolvers = {
 	},
 	Mutation: {
 		createUser: (_, { name }) => {
-			const user = { id: randomUUIDv7(), name };
+			const user = {
+				id: randomUUIDv7(),
+				name,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			};
 			users.push(user);
 			return user;
 		},
@@ -22,6 +28,7 @@ export const resolvers: Resolvers = {
 			const user = users.find((user) => user.id === id);
 			if (!user) throw new Error(`User with id ${id} not found`);
 			user.name = name;
+			user.updatedAt = new Date();
 			return user;
 		},
 		deleteUser: (_, { id }) => {

@@ -1,6 +1,10 @@
+scalar DateTime
+
 type User {
 	id: ID!
 	name: String!
+	createdAt: DateTime!
+	updatedAt: DateTime!
 }
 
 type Query {
