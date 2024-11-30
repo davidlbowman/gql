@@ -6,6 +6,7 @@ const GET_USERS = `
         users {
             id
             name
+            createdAt
         }
     }
 `;

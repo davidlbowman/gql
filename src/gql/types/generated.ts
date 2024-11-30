@@ -55,6 +55,7 @@ export type QueryUserArgs = {
 
 export type User = {
   __typename?: 'User';
+  createdAt: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
   name: Scalars['String']['output'];
 };
@@ -167,6 +168,7 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
 };
 
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {
+  createdAt?: Resolver<ResolversTypes['DateTime'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
