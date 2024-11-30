@@ -1,8 +1,7 @@
 import { randomUUIDv7 } from "bun";
-import type { Resolvers } from "../../types/generated";
+import type { Resolvers, User } from "../../types/generated";
 
-let users: { id: string; name: string; createdAt: Date; updatedAt: Date }[] =
-	[];
+let users: User[] = [];
 
 export const resolvers: Resolvers = {
 	Query: {
