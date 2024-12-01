@@ -18,3 +18,9 @@ type Mutation {
 	deleteUser(id: ID!): User!
 	deleteAllUsers: Boolean!
 }
+
+type Subscription {
+	userCreated: User!
+	userUpdated: User!
+	userDeleted: User!
+}

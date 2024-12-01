@@ -1,7 +1,22 @@
 import { randomUUIDv7 } from "bun";
 import { GraphQLScalarType } from "graphql";
+import { PubSub as BasePubSub } from "graphql-subscriptions";
 import { db } from "../../../sqlite/database";
 import type { Resolvers, User } from "../../types/generated";
+
+const EVENTS = {
+	USER_CREATED: "USER_CREATED",
+	USER_UPDATED: "USER_UPDATED",
+	USER_DELETED: "USER_DELETED",
+};
+
+type PubSub = BasePubSub & {
+	asyncIterator: <T>(
+		triggers: (typeof EVENTS)[keyof typeof EVENTS][],
+	) => AsyncIterable<T>;
+};
+
+const pubsub = new BasePubSub() as PubSub;
 
 const dateTimeScalar = new GraphQLScalarType({
 	name: "DateTime",
@@ -46,7 +61,7 @@ export const resolvers: Resolvers = {
 			const id = randomUUIDv7();
 			const now = new Date().toISOString();
 
-			return db
+			const newUser = db
 				.query(`
 					INSERT INTO users (id, name, created_at, updated_at) 
 					VALUES ($id, $name, $createdAt, $updatedAt) 
@@ -58,6 +73,10 @@ export const resolvers: Resolvers = {
 					$createdAt: now,
 					$updatedAt: now,
 				}) as User;
+
+			pubsub.publish("EVENTS.USER_CREATED", { userCreated: newUser });
+
+			return newUser;
 		},
 		updateUser: (_, { id, name }) => {
 			const user = db
@@ -67,19 +86,23 @@ export const resolvers: Resolvers = {
 			if (!user) throw new Error(`User with id ${id} not found`);
 
 			const now = new Date().toISOString();
-			user.name = name;
 
-			db.query(`
-				UPDATE users 
-				SET name = $name, updated_at = $updatedAt 
-				WHERE id = $id
-			`).run({
-				$name: name,
-				$id: id,
-				$updatedAt: now,
-			});
+			const updatedUser = db
+				.query(`
+              UPDATE users 
+              SET name = $name, updated_at = $updatedAt 
+              WHERE id = $id
+              RETURNING id, name, created_at as createdAt, updated_at as updatedAt
+            `)
+				.get({
+					$name: name,
+					$id: id,
+					$updatedAt: now,
+				}) as User;
 
-			return user;
+			pubsub.publish("EVENTS.USER_UPDATED", { userUpdated: updatedUser });
+
+			return updatedUser;
 		},
 		deleteUser: (_, { id }) => {
 			const user = db
@@ -90,11 +113,25 @@ export const resolvers: Resolvers = {
 
 			db.query("DELETE FROM users WHERE id = $id").run({ $id: id });
 
+			pubsub.publish("EVENTS.USER_DELETED", { userDeleted: user });
+
 			return user;
 		},
 		deleteAllUsers: () => {
 			db.query("DELETE FROM users").run();
 			return true;
+		},
+	},
+
+	Subscription: {
+		userCreated: {
+			subscribe: () => pubsub.asyncIterator(["USER_CREATED"]),
+		},
+		userUpdated: {
+			subscribe: () => pubsub.asyncIterator(["USER_UPDATED"]),
+		},
+		userDeleted: {
+			subscribe: () => pubsub.asyncIterator(["USER_DELETED"]),
 		},
 	},
 };
